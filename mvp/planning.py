@@ -1,4 +1,5 @@
 """Validated initial plans and a persisted review gate over the existing research runner."""
+import os
 from graphlib import TopologicalSorter, CycleError
 from typing import Literal, TypedDict
 
@@ -131,12 +132,23 @@ do not promise tables, files, or large surveys beyond this output. Avoid unneces
 This is planning only: no tools can execute the project during this call.'''
 
 
+def planner_call_limit():
+    try:
+        limit = int(os.getenv('MVP_PLANNER_MAX_CALLS', '6'))
+    except ValueError as error:
+        raise ValueError('MVP_PLANNER_MAX_CALLS must be an integer from 1 to 12') from error
+    if not 1 <= limit <= 12:
+        raise ValueError('MVP_PLANNER_MAX_CALLS must be an integer from 1 to 12')
+    return limit
+
+
 async def generate_plan(model, goal):
+    limit = planner_call_limit()
     planner = create_agent(model, tools=[], system_prompt=PLANNER_PROMPT,
                            response_format=ToolStrategy(InitialPlan),
-                           middleware=[ModelCallLimitMiddleware(run_limit=3, exit_behavior='error')])
+                           middleware=[ModelCallLimitMiddleware(run_limit=limit, exit_behavior='error')])
     result = await planner.ainvoke({'messages': [{'role': 'user', 'content': goal}]},
-                                   config={'recursion_limit': 12})
+                                   config={'recursion_limit': 4 * limit + 8})
     return structured_result(result, InitialPlan)
 
 

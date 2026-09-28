@@ -95,7 +95,7 @@ The CLI remains available:
 
 `/check` is available in chat after execution, including older projects that ended at `tasks_completed`. A missing requirement is reported; the user can add direction to address it. The checker itself does not silently create new work.
 
-Limits remain visible and persisted: 8 planner reviews, 12 task attempts, 12 active steps, 24 lifetime IDs, 3 recovery commands and 3 goal reviews per project. Each model-backed planner/goal review permits up to 3 calls with a 180-second deadline; each research task uses Stage 2's own limits and 300-second deadline. There is no aggregate dollar budget. Limits do not reset on reopen. One command may mutate a project at a time.
+Limits remain visible and persisted: 8 planner reviews, 12 task attempts, 12 active steps, 24 lifetime IDs, 3 recovery commands and 3 goal reviews per project. Initial planning permits up to 6 calls, including schema corrections (`MVP_PLANNER_MAX_CALLS`, configurable from 1–12); subsequent plan and goal reviews permit up to 3. Each operation retains a 180-second deadline; each research task uses Stage 2's own limits and 300-second deadline. There is no aggregate dollar budget. Limits do not reset on reopen. One command may mutate a project at a time.
 
 ## Verification
 

@@ -9,6 +9,7 @@ from types import SimpleNamespace
 from uuid import uuid4
 
 from dotenv import load_dotenv
+from langchain.agents.middleware.model_call_limit import ModelCallLimitExceededError
 from rich.markdown import Markdown as RichMarkdown
 from rich.text import Text
 from textual import on, work
@@ -303,8 +304,13 @@ class GoalApp(App):
                 self.save_chat(directory)
             raise
         except Exception as error:
-            message = str(error) if isinstance(error, (ValueError, OSError)) else f'Operation failed ({type(error).__name__}).'
+            if isinstance(error, ModelCallLimitExceededError):
+                message = f'Swarm reached its local model-call budget: {error}. This is an app limit, not a provider rate limit.'
+            else:
+                message = str(error) if isinstance(error, (ValueError, OSError)) else f'Operation failed ({type(error).__name__}).'
             self.say('assistant', message + (' Say “resume” to continue saved work.' if self.state.get('resume_available') else ''))
+            if (directory/'project.sqlite').exists():
+                self.save_chat(directory)
             if command == 'create' and not (directory/'project.sqlite').exists():
                 self.current_run = None
         finally:
