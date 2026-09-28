@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.agent-state/
+.env
+.env.*
+!.env.example
+.secrets/
+.venv/
+credentials.json
+token.json
+client_secret_*.json
